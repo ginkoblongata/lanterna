@@ -121,11 +121,11 @@ public class SplitPanel extends Panel {
     }
 
     class ScrollPanelLayoutManager implements LayoutManager {
-        
-        private boolean hasChanged = true;
-        
+
+        boolean hasChanged;
+ 
         public ScrollPanelLayoutManager() {
-            
+            hasChanged = true;
         }
 
 
@@ -199,7 +199,7 @@ public class SplitPanel extends Panel {
                 compB.setPosition(new TerminalPosition(leftWidth + tWidth, 0));
             } else {
                 int leftWidth = Math.max(0, Math.min(compA.getPreferredSize().getColumns(), w));
-                int leftHeight = Math.max(0, (int)(h * ratio));
+                int leftHeight = Math.max(0, (int) (h * ratio));
 
                 int rightWidth = Math.max(0, Math.min(compB.getPreferredSize().getColumns(), w));
                 int rightHeight = Math.max(0, h - leftHeight);
@@ -212,6 +212,7 @@ public class SplitPanel extends Panel {
                 thumb.setPosition(new TerminalPosition(w / 2 - tWidth / 2, leftHeight));
                 compB.setPosition(new TerminalPosition(0, leftHeight + tHeight));
             }
+
             hasChanged = !compAPrevPos.equals(compA.getPosition()) ||
                     !compAPrevSize.equals(compA.getSize()) ||
                     !compBPrevPos.equals(compB.getPosition()) ||
