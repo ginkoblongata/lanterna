@@ -245,9 +245,10 @@ public class SplitPanel extends Panel {
     public void setRatio(int left, int right) {
         if (left == 0 || right == 0) {
             ratio = 0.5;
+        } else {
+            int total = Math.abs(left) + Math.abs(right);
+            ratio = (double)left / (double)total;
         }
-        int total = Math.abs(left) + Math.abs(right);
-        ratio = (double)left / (double)total;
     }
 
     public void setThumbVisible(boolean visible) {
