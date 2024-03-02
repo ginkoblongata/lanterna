@@ -161,7 +161,16 @@ public class SplitPanel extends Panel {
             Theme theme = getTheme();
             ThemeDefinition themeDefinition = theme.getDefaultDefinition();
             ThemeStyle themeStyle = themeDefinition.getNormal();
-            textImage.setAll(new TextCharacter(isHorizontal ? Symbols.BOLD_SINGLE_LINE_VERTICAL : Symbols.BOLD_SINGLE_LINE_HORIZONTAL, themeStyle.getForeground(), themeStyle.getBackground()));
+
+            TextCharacter thumbRenderer = TextCharacter.fromCharacter(
+                    isHorizontal ? Symbols.SINGLE_LINE_VERTICAL : Symbols.SINGLE_LINE_HORIZONTAL,
+                    themeStyle.getForeground(),
+                    themeStyle.getBackground());
+            if (thumb.isFocused()) {
+                thumbRenderer = thumbRenderer.withModifier(SGR.BOLD);
+            }
+
+            textImage.setAll(thumbRenderer);
             thumb.setTextImage(textImage);
             // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
@@ -252,3 +261,4 @@ public class SplitPanel extends Panel {
     }
 
 }
+
