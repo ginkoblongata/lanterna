@@ -69,6 +69,7 @@ public class SplitPanel extends Panel {
             TerminalSize tSize;
             TerminalPosition down = null;
             TerminalPosition drag = null;
+
             @Override
             public Result handleKeyStroke(KeyStroke keyStroke) {
                 if (!(keyStroke instanceof MouseAction)) {
@@ -83,6 +84,7 @@ public class SplitPanel extends Panel {
                 }
                 if (mouseAction.isMouseDrag()) {
                     drag = mouseAction.getPosition();
+
                     // xxxxxxxxxxxxxxxxxxxxx
                     // this is a hack, should not be needed if the pane drag
                     // only on mouse down'd comp stuff was completely working
@@ -155,63 +157,56 @@ public class SplitPanel extends Panel {
             textImage.setAll(new TextCharacter(isHorizontal ? Symbols.BOLD_SINGLE_LINE_VERTICAL : Symbols.BOLD_SINGLE_LINE_HORIZONTAL, themeStyle.getForeground(), themeStyle.getBackground()));
             thumb.setTextImage(textImage);
             // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            
+
             int tWidth = thumb.getPreferredSize().getColumns();
             int tHeight = thumb.getPreferredSize().getRows();
-                
+
             int w = size.getColumns();
             int h = size.getRows();
-            
+
             if (isHorizontal) {
                 w -= tWidth;
             } else {
                 h -= tHeight;
             }
 
-            TerminalSize compAPrevSize = compA.getSize();
-            TerminalSize compBPrevSize = compB.getSize();
-            TerminalSize thumbPrevSize = thumb.getSize();
-            TerminalPosition compAPrevPos = compA.getPosition();
-            TerminalPosition compBPrevPos = compB.getPosition();
-            TerminalPosition thumbPrevPos = thumb.getPosition();
-
             if (isHorizontal) {
                 int leftWidth = Math.max(0, (int)(w * ratio));
                 int leftHeight = Math.max(0, Math.min(compA.getPreferredSize().getRows(), h));
-                
+
                 int rightWidth = Math.max(0, w - leftWidth);
                 int rightHeight = Math.max(0, Math.min(compB.getPreferredSize().getRows(), h));
-                
+
                 compA.setSize(new TerminalSize(leftWidth, leftHeight));
                 thumb.setSize(thumb.getPreferredSize());
                 compB.setSize(new TerminalSize(rightWidth, rightHeight));
-                
+
                 compA.setPosition(new TerminalPosition(0,0));
                 thumb.setPosition(new TerminalPosition(leftWidth, h/2 - tHeight/2));
                 compB.setPosition(new TerminalPosition(leftWidth + tWidth, 0));
             } else {
                 int leftWidth = Math.max(0, Math.min(compA.getPreferredSize().getColumns(), w));
                 int leftHeight = Math.max(0, (int)(h * ratio));
-                
+
                 int rightWidth = Math.max(0, Math.min(compB.getPreferredSize().getColumns(), w));
                 int rightHeight = Math.max(0, h - leftHeight);
-                
+
                 compA.setSize(new TerminalSize(leftWidth, leftHeight));
                 thumb.setSize(thumb.getPreferredSize());
                 compB.setSize(new TerminalSize(rightWidth, rightHeight));
-                
+
                 compA.setPosition(new TerminalPosition(0,0));
                 thumb.setPosition(new TerminalPosition(w/2 - tWidth/2, leftHeight));
                 compB.setPosition(new TerminalPosition(0, leftHeight + tHeight));
             }
         }
-        
+
         @Override
         public boolean hasChanged() {
             return true;
         }
     }
-    
+
     /*
      * Use whatever sizing.
      *
@@ -224,5 +219,5 @@ public class SplitPanel extends Panel {
         int total = Math.abs(left) + Math.abs(right);
         ratio = (double)left / (double)total;
     }
-    
+
 }

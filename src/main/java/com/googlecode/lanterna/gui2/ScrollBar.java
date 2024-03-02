@@ -298,7 +298,7 @@ public class ScrollBar extends AbstractInteractableComponent<ScrollBar> {
                 position = Math.max(0, maximum - viewSize);
                 component.setScrollPosition(position);
             }
-            
+
             TerminalRectangle lessArrow = getScrollLessArrowRect(component);
             TerminalRectangle moreArrow = getScrollMoreArrowRect(component);
             TerminalRectangle thumb = getThumbRect(component, position, maximum);
