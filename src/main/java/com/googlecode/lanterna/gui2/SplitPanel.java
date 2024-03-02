@@ -72,10 +72,13 @@ public class SplitPanel extends Panel {
 
             @Override
             public Result handleKeyStroke(KeyStroke keyStroke) {
-                if (!(keyStroke instanceof MouseAction)) {
-                    return Result.UNHANDLED;
+                if (keyStroke instanceof MouseAction) {
+                    return handleMouseAction((MouseAction)keyStroke);
+                } else {
+                    return super.handleKeyStroke(keyStroke);
                 }
-                MouseAction mouseAction = (MouseAction)keyStroke;
+            }
+            private Result handleMouseAction(MouseAction mouseAction) {
                 if (mouseAction.isMouseDown()) {
                     aSize = compA.getSize();
                     bSize = compB.getSize();

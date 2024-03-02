@@ -57,17 +57,4 @@ public class ImageComponent extends AbstractInteractableComponent {
             }
         };
     }
-    
-    @Override
-    public Result handleKeyStroke(KeyStroke keyStroke) {
-        Result superResult = super.handleKeyStroke(keyStroke);
-        
-        // just arrows and focus move stuff
-        if (superResult != Result.UNHANDLED) {
-            return superResult;
-        }
-        
-        return Result.UNHANDLED;
-    }
-    
 }
