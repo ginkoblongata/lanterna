@@ -75,6 +75,7 @@ public class SplitPanel extends Panel {
                 if (keyStroke instanceof MouseAction) {
                     return handleMouseAction((MouseAction)keyStroke);
                 } else {
+                    // TODO: Implement keyboard based resizing
                     return super.handleKeyStroke(keyStroke);
                 }
             }
