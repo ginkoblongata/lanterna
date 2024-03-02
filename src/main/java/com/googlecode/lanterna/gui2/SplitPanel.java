@@ -78,6 +78,7 @@ public class SplitPanel extends Panel {
                     return super.handleKeyStroke(keyStroke);
                 }
             }
+
             private Result handleMouseAction(MouseAction mouseAction) {
                 if (mouseAction.isMouseDown()) {
                     aSize = compA.getSize();
@@ -120,7 +121,9 @@ public class SplitPanel extends Panel {
     }
 
     class ScrollPanelLayoutManager implements LayoutManager {
-    
+        
+        private boolean hasChanged = true;
+        
         public ScrollPanelLayoutManager() {
             
         }
@@ -173,8 +176,15 @@ public class SplitPanel extends Panel {
                 h -= tHeight;
             }
 
+            TerminalSize compAPrevSize = compA.getSize();
+            TerminalSize compBPrevSize = compB.getSize();
+            TerminalSize thumbPrevSize = thumb.getSize();
+            TerminalPosition compAPrevPos = compA.getPosition();
+            TerminalPosition compBPrevPos = compB.getPosition();
+            TerminalPosition thumbPrevPos = thumb.getPosition();
+
             if (isHorizontal) {
-                int leftWidth = Math.max(0, (int)(w * ratio));
+                int leftWidth = Math.max(0, (int) (w * ratio));
                 int leftHeight = Math.max(0, Math.min(compA.getPreferredSize().getRows(), h));
 
                 int rightWidth = Math.max(0, w - leftWidth);
@@ -184,8 +194,8 @@ public class SplitPanel extends Panel {
                 thumb.setSize(thumb.getPreferredSize());
                 compB.setSize(new TerminalSize(rightWidth, rightHeight));
 
-                compA.setPosition(new TerminalPosition(0,0));
-                thumb.setPosition(new TerminalPosition(leftWidth, h/2 - tHeight/2));
+                compA.setPosition(new TerminalPosition(0, 0));
+                thumb.setPosition(new TerminalPosition(leftWidth, h / 2 - tHeight / 2));
                 compB.setPosition(new TerminalPosition(leftWidth + tWidth, 0));
             } else {
                 int leftWidth = Math.max(0, Math.min(compA.getPreferredSize().getColumns(), w));
@@ -198,15 +208,21 @@ public class SplitPanel extends Panel {
                 thumb.setSize(thumb.getPreferredSize());
                 compB.setSize(new TerminalSize(rightWidth, rightHeight));
 
-                compA.setPosition(new TerminalPosition(0,0));
-                thumb.setPosition(new TerminalPosition(w/2 - tWidth/2, leftHeight));
+                compA.setPosition(new TerminalPosition(0, 0));
+                thumb.setPosition(new TerminalPosition(w / 2 - tWidth / 2, leftHeight));
                 compB.setPosition(new TerminalPosition(0, leftHeight + tHeight));
             }
+            hasChanged = !compAPrevPos.equals(compA.getPosition()) ||
+                    !compAPrevSize.equals(compA.getSize()) ||
+                    !compBPrevPos.equals(compB.getPosition()) ||
+                    !compBPrevSize.equals(compB.getSize()) ||
+                    !thumbPrevPos.equals(thumb.getPosition()) ||
+                    !thumbPrevSize.equals(thumb.getSize());
         }
 
         @Override
         public boolean hasChanged() {
-            return true;
+            return hasChanged;
         }
     }
 
@@ -218,6 +234,18 @@ public class SplitPanel extends Panel {
     public void setRatio(int left, int right) {
         if (left == 0 || right == 0) {
             ratio = 0.5;
+        }
+        int total = Math.abs(left) + Math.abs(right);
+        ratio = (double)left / (double)total;
+    }
+
+    public void setThumbVisible(boolean visible) {
+        thumb.setVisible(visible);
+
+        if (visible) {
+            this.setPreferredSize(null);
+        } else {
+            thumb.setPreferredSize(new TerminalSize(1, 1));
         }
         int total = Math.abs(left) + Math.abs(right);
         ratio = (double)left / (double)total;
