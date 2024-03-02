@@ -247,8 +247,6 @@ public class SplitPanel extends Panel {
         } else {
             thumb.setPreferredSize(new TerminalSize(1, 1));
         }
-        int total = Math.abs(left) + Math.abs(right);
-        ratio = (double)left / (double)total;
     }
 
 }
