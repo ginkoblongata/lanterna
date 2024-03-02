@@ -74,8 +74,9 @@ public class SplitPanel extends Panel {
             public Result handleKeyStroke(KeyStroke keyStroke) {
                 if (keyStroke instanceof MouseAction) {
                     return handleMouseAction((MouseAction)keyStroke);
-                } else {
-                    // TODO: Implement keyboard based resizing
+                }
+                // TODO: Implement keyboard based resizing
+                else {
                     return super.handleKeyStroke(keyStroke);
                 }
             }
@@ -245,9 +246,10 @@ public class SplitPanel extends Panel {
     public void setRatio(int left, int right) {
         if (left == 0 || right == 0) {
             ratio = 0.5;
-        } else {
+        }
+        else {
             int total = Math.abs(left) + Math.abs(right);
-            ratio = (double)left / (double)total;
+            ratio = (double) left / (double) total;
         }
     }
 
