@@ -124,7 +124,7 @@ public class SplitPanel extends Panel {
     class ScrollPanelLayoutManager implements LayoutManager {
 
         boolean hasChanged;
- 
+
         public ScrollPanelLayoutManager() {
             hasChanged = true;
         }
