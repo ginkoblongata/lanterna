@@ -190,6 +190,8 @@ public class ImageComponentTest extends TestBase {
         ImageComponent imageComponentY = makeImageComponent(controller, IMAGE_Y);
         ImageComponent imageComponentZ = makeImageComponent(controller, IMAGE_Z);
         
+
+
         Panel mainPanel = new Panel();
         mainPanel.setLayoutManager(new GridLayout(2));
 
@@ -208,7 +210,6 @@ public class ImageComponentTest extends TestBase {
     }
     
     
-
     ImageComponent makeImageComponent(ExampleController controller, String[] image) {
         TerminalSize imageSize = new TerminalSize(image[0].length(), image.length);
         TextImage textImage = new BasicTextImage(imageSize);

@@ -441,7 +441,7 @@ public abstract class AbstractListBox<V, T extends AbstractListBox<V, T>> extend
     @Override
     public synchronized T setSelectedIndex(int index) {
         selectedIndex = Math.max(0, Math.min(index, items.size() -1));
-
+        
         invalidate();
         return self();
     }
