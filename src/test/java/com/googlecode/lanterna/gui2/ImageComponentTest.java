@@ -174,15 +174,6 @@ public class ImageComponentTest extends TestBase {
         final BasicWindow window = new BasicWindow("ImageComponentTest");
         window.setTheme(LanternaThemes.getRegisteredTheme("conqueror"));
 
-//        ImageComponent unscrollable = makeImageComponent();
-//        ScrollPanel both = new ScrollPanel(makeImageComponent(), true, true);
-//        ScrollPanel vertical = new ScrollPanel(makeImageComponent(), false, true);
-//        ScrollPanel horizontal = new ScrollPanel(makeImageComponent(), true, false);
-//        
-//        vertical.setPreferredSize(new TerminalSize( 24, 12));
-//        horizontal.setPreferredSize(new TerminalSize( 24, 12));
-//        both.setPreferredSize(new TerminalSize( 24, 12));
-
         ExampleController controller = new ExampleController();
         controller.selectedImageComponent = makeImageComponent(controller, IMAGE_BLANK);
         
@@ -194,11 +185,6 @@ public class ImageComponentTest extends TestBase {
 
         Panel mainPanel = new Panel();
         mainPanel.setLayoutManager(new GridLayout(2));
-
-//        mainPanel.addComponent(unscrollable.withBorder(Borders.singleLine("full size")));
-//        mainPanel.addComponent(both.withBorder(Borders.singleLine("v & h scroll")));
-//        mainPanel.addComponent(vertical.withBorder(Borders.singleLine("v scroll")));
-//        mainPanel.addComponent(horizontal.withBorder(Borders.singleLine("h scroll")));
 
         mainPanel.addComponent(imageComponentX.withBorder(Borders.singleLine("x")));
         mainPanel.addComponent(imageComponentY.withBorder(Borders.singleLine("y")));
