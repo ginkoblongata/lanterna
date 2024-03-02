@@ -72,7 +72,7 @@ public class SplitPanel extends Panel {
 
             @Override
             public Result handleKeyStroke(KeyStroke keyStroke) {
-                Results result;
+                Result result;
                 if (keyStroke instanceof MouseAction) {
                     result = handleMouseAction((MouseAction) keyStroke);
                 }
