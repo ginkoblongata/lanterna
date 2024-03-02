@@ -72,13 +72,15 @@ public class SplitPanel extends Panel {
 
             @Override
             public Result handleKeyStroke(KeyStroke keyStroke) {
+                Results result;
                 if (keyStroke instanceof MouseAction) {
-                    return handleMouseAction((MouseAction) keyStroke);
+                    result = handleMouseAction((MouseAction) keyStroke);
                 }
                 // TODO: Implement keyboard based resizing
                 else {
-                    return super.handleKeyStroke(keyStroke);
+                    result = super.handleKeyStroke(keyStroke);
                 }
+                return result;
             }
 
             private Result handleMouseAction(MouseAction mouseAction) {
@@ -263,5 +265,9 @@ public class SplitPanel extends Panel {
         }
     }
 
+    @Override
+    public boolean isInvalid() {
+        return super.isInvalid();
+    }
 }
 
