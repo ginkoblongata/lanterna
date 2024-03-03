@@ -153,7 +153,7 @@ public class TextBox extends AbstractInteractableComponent<TextBox> implements S
         }
         setPreferredSize(preferredSize);
     }
- 
+
     @Override
     public void setIsWithinScrollPanel(ScrollPanel scrollPanel) {
         this.scrollPanel = scrollPanel;
