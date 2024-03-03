@@ -33,7 +33,6 @@ import java.util.*;
 public abstract class TestBase {
 
     MultiWindowTextGUI textGUI;
-    
 
     void run(String[] args) throws IOException, InterruptedException {
         Screen screen = new TestTerminalFactory(args).createScreen();
@@ -47,11 +46,8 @@ public abstract class TestBase {
 
         try {
             textGUI.addWindow(makeThemeChangerWindow());
-         
             init(textGUI);
-            
             arrangeWindows();
-            
             AsynchronousTextGUIThread guiThread = (AsynchronousTextGUIThread)textGUI.getGUIThread();
             guiThread.start();
             afterGUIThreadStarted(textGUI);
@@ -72,17 +68,13 @@ public abstract class TestBase {
     }
 
     protected MultiWindowTextGUI createTextGUI(Screen screen) {
-        MultiWindowTextGUI gui = new MultiWindowTextGUI(new SeparateTextGUIThread.Factory(), screen, new DefaultWindowManager());
-        //MultiWindowTextGUI gui = new MultiWindowTextGUI(new SeparateTextGUIThread.Factory(), screen);
-        return gui;
+        return new MultiWindowTextGUI(new SeparateTextGUIThread.Factory(), screen, new DefaultWindowManager());
     }
 
     public abstract void init(WindowBasedTextGUI textGUI);
     public void afterGUIThreadStarted(WindowBasedTextGUI textGUI) {
         // By default do nothing
     }
-    
-    
     public Window makeThemeChangerWindow() {
 		    final Window window = new BasicWindow("Themes");
         ActionListBox themes = new ActionListBox();
@@ -129,5 +121,4 @@ public abstract class TestBase {
             x += size.getColumns() + PAD;
         }
     }
-    
 }
