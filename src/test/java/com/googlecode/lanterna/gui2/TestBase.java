@@ -32,29 +32,29 @@ import java.util.*;
  */
 public abstract class TestBase {
 
-    MultiWindowTextGUI textGui;
+    MultiWindowTextGUI textGUI;
     
 
     void run(String[] args) throws IOException, InterruptedException {
         Screen screen = new TestTerminalFactory(args).createScreen();
         screen.startScreen();
-        textGui = createTextGUI(screen);
+        textGUI = createTextGUI(screen);
         assignTheme(extractTheme(args));
-        textGui.setBlockingIO(false);
-        textGui.setEOFWhenNoWindows(true);
+        textGUI.setBlockingIO(false);
+        textGUI.setEOFWhenNoWindows(true);
         //noinspection ResultOfMethodCallIgnored
-        textGui.isEOFWhenNoWindows();   //No meaning, just to silence IntelliJ:s "is never used" alert
+        textGUI.isEOFWhenNoWindows();   //No meaning, just to silence IntelliJ:s "is never used" alert
 
         try {
-            textGui.addWindow(makeThemeChangerWindow());
+            textGUI.addWindow(makeThemeChangerWindow());
          
-            init(textGui);
+            init(textGUI);
             
             arrangeWindows();
             
-            AsynchronousTextGUIThread guiThread = (AsynchronousTextGUIThread)textGui.getGUIThread();
+            AsynchronousTextGUIThread guiThread = (AsynchronousTextGUIThread)textGUI.getGUIThread();
             guiThread.start();
-            afterGUIThreadStarted(textGui);
+            afterGUIThreadStarted(textGUI);
             guiThread.waitForStop();
         }
         finally {
@@ -77,8 +77,8 @@ public abstract class TestBase {
         return gui;
     }
 
-    public abstract void init(WindowBasedTextGUI textGui);
-    public void afterGUIThreadStarted(WindowBasedTextGUI textGui) {
+    public abstract void init(WindowBasedTextGUI textGUI);
+    public void afterGUIThreadStarted(WindowBasedTextGUI textGUI) {
         // By default do nothing
     }
     
@@ -109,12 +109,12 @@ public abstract class TestBase {
             return;
         }
         Theme theme = LanternaThemes.getRegisteredTheme(themeName);
-        Collection<Window> windows = textGui.getWindows();
+        Collection<Window> windows = textGUI.getWindows();
         if (theme != null && windows != null) {
             for (Window w : windows) {
                 w.setTheme(theme);
             }
-            textGui.setTheme(theme);
+            textGUI.setTheme(theme);
         }
     }
     
@@ -122,7 +122,7 @@ public abstract class TestBase {
         final int PAD = 8;
         int x = 1;
         int y = 1;
-        for (Window w : textGui.getWindows()) {
+        for (Window w : textGUI.getWindows()) {
             TerminalSize size = w.getPreferredSize();
             w.setPosition(new TerminalPosition(x, y));
             w.setHints(Collections.singletonList(Window.Hint.FIXED_POSITION));
