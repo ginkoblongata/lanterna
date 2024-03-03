@@ -47,13 +47,11 @@ public class WindowManagerTest extends TestBase {
             xOffset = 0;
             super.prepareWindows(textGUI, allWindows, screenSize);
         }
-    
         @Override
         protected void prepareWindow(TerminalSize screenSize, Window window) {
             super.prepareWindow(screenSize, window);
 
             window.setDecoratedSize(window.getPreferredSize().withRelative(12, 10));
-            
             window.setPosition(new TerminalPosition(
                     screenSize.getColumns() - window.getDecoratedSize().getColumns() - 1 - xOffset - (2*PAD),
                     screenSize.getRows() - window.getDecoratedSize().getRows() - 1
@@ -62,9 +60,7 @@ public class WindowManagerTest extends TestBase {
             xOffset += window.getDecoratedSize().getColumns();
         }
     }
-    
-    
-    
+
     void trackTheOrderings(List<Window> windows) {
         String token = "";
         for (Window w : windows) {
@@ -78,7 +74,5 @@ public class WindowManagerTest extends TestBase {
             // put debugger break point here
             int hmmm_not_sure_what_is_going_on = 9876;
         }
-        
     }
-    
 }
