@@ -34,6 +34,9 @@ public class ImageComponent extends AbstractInteractableComponent {
         setTextImage(new BasicTextImage(0,0));
     }
     
+    public TextImage getTextImage() {
+        return textImage;
+    }
     public void setTextImage(TextImage textImage) {
         this.textImage = textImage;
         invalidate();
@@ -56,18 +59,6 @@ public class ImageComponent extends AbstractInteractableComponent {
                 return null;
             }
         };
-    }
-    
-    @Override
-    public Result handleKeyStroke(KeyStroke keyStroke) {
-        Result superResult = super.handleKeyStroke(keyStroke);
-        
-        // just arrows and focus move stuff
-        if (superResult != Result.UNHANDLED) {
-            return superResult;
-        }
-        
-        return Result.UNHANDLED;
     }
     
 }

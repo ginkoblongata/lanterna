@@ -114,9 +114,8 @@ public class BasicTextImage implements TextImage {
             throw new IllegalArgumentException("Cannot resize BasicTextImage with null " +
                     (newSize == null ? "newSize" : "filler"));
         }
-        if(newSize.getRows() == buffer.length &&
-                (buffer.length == 0 || newSize.getColumns() == buffer[0].length)) {
-            return this;
+        if (size.equals(newSize)) {
+          return this;
         }
         return new BasicTextImage(newSize, buffer, filler);
     }
