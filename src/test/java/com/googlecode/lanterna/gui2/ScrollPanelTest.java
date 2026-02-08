@@ -81,7 +81,7 @@ public class ScrollPanelTest {
                     log("input: " + keyStroke);
                 }
             });
-            window.setTheme(LanternaThemes.getRegisteredTheme("blaster"));
+            window.setTheme(LanternaThemes.getRegisteredTheme("businessmachine"));
             window.setComponent(makeUi());
             gui.addWindowAndWait(window);
         }
@@ -103,18 +103,20 @@ public class ScrollPanelTest {
         themes.addItem("theme: businessmachine", () -> assignTheme("businessmachine"));
         themes.addItem("theme: blaster        ", () -> assignTheme("blaster"));
 		
-        ActionListBox listBox = new ActionListBox();
-        ActionListBox listBox2 = new ActionListBox();
+        ActionListBox actionListBox = new ActionListBox();
+        RadioBoxList<String> radioListBox = new RadioBoxList<>();
+        CheckBoxList<String> checkListBox = new CheckBoxList<>();
         
-        eachOf(245, i -> listBox.addItem("assign: " + (5*i), () -> reassignItems(5*i, listBox2)));
-        eachOf(245, i -> listBox2.addItem("item: " + i, () -> log("listBox2 item: " + i)));
+        fillActionListBoxWithTestItems("actionListBox", 60, actionListBox);
+        fillAbstractListBoxWithTestItems("radioListBox", 60, radioListBox);
+        fillAbstractListBoxWithTestItems("checkListBox", 60, checkListBox);
         
-        RadioBoxList radioBoxList = new RadioBoxList();
-        eachOf(245, i -> radioBoxList.addItem("radio item: " + i));
-        
-        CheckBoxList<String> checkboxList = new CheckBoxList<>();
-        eachOf(245, i -> checkboxList.addItem("heckboxList: " + i));
-        
+        ActionListBox numberChooser = new ActionListBox();
+        eachOf(20, i -> numberChooser.addItem("assign: " + (5*i) + " items", () -> {
+            fillActionListBoxWithTestItems("actionListBox", 5*i, actionListBox);
+            fillAbstractListBoxWithTestItems( "radioListBox", 5*i, radioListBox);
+            fillAbstractListBoxWithTestItems( "checkListBox", 5*i, checkListBox);
+        }));
         
         ActionListBox listBox3 = new ActionListBox();
         eachOf(245, i -> listBox3.addItem("item: " + i, () -> log("listBox3 item: " + i)));
@@ -126,6 +128,8 @@ public class ScrollPanelTest {
         eachOf(245, i -> checkboxList2.addItem("heckboxList2: " + i));
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
+        
+        
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         // arrange components
         Panel ui = new Panel(new LinearLayout(Direction.VERTICAL));
@@ -135,16 +139,51 @@ public class ScrollPanelTest {
         Panel hpanel = new Panel(new GridLayout(100));
         hpanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL));
         hpanel.addComponent(themes.withBorder(Borders.singleLine("themes")));
-        hpanel.addComponent(listBox.withBorder(Borders.singleLine("listBox")));
-        hpanel.addComponent(new ScrollPanel(listBox2).withBorder(Borders.singleLine("scrollPanel listBox")));
-        hpanel.addComponent(new ScrollPanel(radioBoxList).withBorder(Borders.singleLine("scrollPanel radio list")));
-        hpanel.addComponent(new ScrollPanel(checkboxList).withBorder(Borders.singleLine("scrollPanel checkbox")));
+        
+        Component numberChooserBordered = numberChooser.withBorder(Borders.singleLine("choose number"));
+        numberChooserBordered.setPreferredSize(TerminalSize.of(30, 20));
+        hpanel.addComponent(numberChooserBordered);
+        
+        
+        ScrollPanel sp_0 = new ScrollPanel(actionListBox);
+        ScrollPanel sp_1 = new ScrollPanel(radioListBox);
+        ScrollPanel sp_2 = new ScrollPanel(checkListBox);
+        
+        
+        Component comp_sp_0 = sp_0.withBorder(Borders.singleLine("scrollPanel actionListBox"));
+        Component comp_sp_1 = sp_1.withBorder(Borders.singleLine("scrollPanel radioListBox"));
+        Component comp_sp_2 = sp_2.withBorder(Borders.singleLine("scrollPanel checkListBox"));
+        
+        
+        //hpanel.addComponent(new ScrollPanel(actionListBox).withBorder(Borders.singleLine("scrollPanel actionListBox")));
+        //hpanel.addComponent(new ScrollPanel(radioListBox).withBorder(Borders.singleLine("scrollPanel radioListBox")));
+        //hpanel.addComponent(new ScrollPanel(checkListBox).withBorder(Borders.singleLine("scrollPanel checkListBox")));
+        
+        // comp_sp_0.setPreferredSize(TerminalSize.of(30, 20));
+        // comp_sp_1.setPreferredSize(TerminalSize.of(30, 20));
+        // comp_sp_2.setPreferredSize(TerminalSize.of(30, 20));
+        
+        hpanel.addComponent(comp_sp_0);
+        hpanel.addComponent(comp_sp_1);
+        hpanel.addComponent(comp_sp_2);
+        
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        // bug: need ".setPrefferedSize(..)" when ActionListBox is in ScrollPanel or ".withBorder(..)" single line label won't show up
+        sp_0.setPreferredSize(TerminalSize.of(30, 20));
+        // the behavior of the layout will be different if ScrollPanel has preferredSize set vs not set
+        // but also maybe there is issue with if the border single line is too long
+        //sp_1.setPreferredSize(TerminalSize.of(30, 20));
+        //sp_2.setPreferredSize(TerminalSize.of(30, 20));
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        
         
         Panel hpanel2 = new Panel(new GridLayout(100));
         hpanel2.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL));
         hpanel2.addComponent(listBox3.withBorder(Borders.singleLine("listBox3")));
         hpanel2.addComponent(radioBoxList2.withBorder(Borders.singleLine("radio list 2")));
-        hpanel2.addComponent(checkboxList2.withBorder(Borders.singleLine("checkbox 2")));
+        hpanel2.addComponent(checkboxList2.withBorder(Borders.singleLine("checkListBox 2")));
         TextBox textBox = new TextBox("", TextBox.Style.MULTI_LINE);
         ScrollPanel textBoxScrollPanel = new ScrollPanel(textBox);
         textBoxScrollPanel.setPreferredSize(new TerminalSize(32, 16));
@@ -157,17 +196,23 @@ public class ScrollPanelTest {
         eachOf(30, i -> textBox2.addLine("abc: "+i+", aklkjh 0 "+i+" 876  "+i+" 76 s   "+i+" ==ssss55 "+i+" 55 555   "+i+" 5 5 55 "+i+"  55555 s "+i+" sssfa --> " + i ));
         hpanel2.addComponent(textBox2.withBorder(Borders.singleLine("TextBox old style")));
         
-        ui.addComponent(Panels.vertical(hpanel, hpanel2));
+        //ui.addComponent(Panels.vertical(hpanel, hpanel2));
+        ui.addComponent(hpanel);
         ui.addComponent(clearLogButton);
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
         return ui;
     }
     
-    void reassignItems(int count, ActionListBox listBox) {
-        log("reassignItems(" + count + ", " + listBox + ")");
-        listBox.clearItems();
-        eachOf(count, i -> listBox.addItem("item: " + i, () -> log("item: " + i)));
+    void fillActionListBoxWithTestItems(String label, int count, ActionListBox listbox) {
+        log(label + ", fillActionListBoxWithTestItems(" + count + ", " + listbox + ")");
+        listbox.clearItems();
+        eachOf(count, i -> listbox.addItem(label + " item: " + i, () -> log(label + " item: " + i)));
+    }
+    void fillAbstractListBoxWithTestItems(String label, int count, AbstractListBox listbox) {
+        log(label + ", fillAbstractListBoxWithTestItems(" + count + ", " + listbox + ")");
+        listbox.clearItems();
+        eachOf(count, i -> listbox.addItem(label + " item: " + i));
     }
 
     void log(String message) {
