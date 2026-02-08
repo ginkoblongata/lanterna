@@ -412,6 +412,9 @@ public class TextBox extends AbstractInteractableComponent<TextBox> implements S
         //pullViewportToOverlapCaret();
         return this;
     }
+    public TextBox setCaretPosition(int x, int y) {
+        return setCaretPosition(TerminalPosition.of(x, y));
+    }
 
     /**
      * Returns the text in this {@code TextBox}, for multi-line mode all lines will be concatenated together with \n as
