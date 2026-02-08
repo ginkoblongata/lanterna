@@ -23,6 +23,7 @@ import com.googlecode.lanterna.graphics.*;
 import com.googlecode.lanterna.input.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ginkoblongata
@@ -35,6 +36,7 @@ public class SplitPanel extends Panel {
 
     private boolean isHorizontal;
     private double ratio = 0.5;
+    private boolean hasChanged = true;
 
     public static SplitPanel ofHorizontal(Component left, Component right) {
         SplitPanel split = new SplitPanel(left, right, true);
@@ -53,20 +55,49 @@ public class SplitPanel extends Panel {
         this.compA = a;
         this.compB = b;
         this.isHorizontal = isHorizontal;
-        thumb = makeThumb();
-        setLayoutManager(new ScrollPanelLayoutManager());
+
         setRatio(10, 10);
+        thumb = makeThumb();
+        setLayoutManager(new SplitPanelLayoutManager());
 
         addComponent(a);
         addComponent(thumb);
         addComponent(b);
     }
 
+    /*
+     * Use whatever sizing.
+     */
+    public void setRatio(int a, int b) {
+        double r = ratio;
+        if (a == 0 || b == 0) {
+            ratio = 0.5;
+        } else {
+            int total = Math.abs(a) + Math.abs(b);
+            ratio = (double) a / (double) total;
+        }
+        hasChanged |= ratio != r;
+    }
+
+    TextCharacter thumbRenderer() {
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        // TODO: themed
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        ThemeStyle themeStyle = getTheme().getDefaultDefinition().getNormal();
+        TextCharacter thumbRenderer = TextCharacter.fromCharacter(
+            (char)(isHorizontal ? Symbols.SINGLE_LINE_VERTICAL : Symbols.SINGLE_LINE_HORIZONTAL),
+            themeStyle.getForeground(),
+            themeStyle.getBackground());
+        if (thumb.isFocused()) {
+            thumbRenderer = thumbRenderer.withModifier(SGR.BOLD);
+        }
+        return thumbRenderer;
+    }
     ImageComponent makeThumb() {
         ImageComponent imageComponent = new ImageComponent() {
-            TerminalSize aSize;
-            TerminalSize bSize;
-            TerminalSize tSize;
+            TerminalSize aSize = TerminalSize.OF_0x0;
+            TerminalSize bSize = TerminalSize.OF_0x0;
+            TerminalSize tSize = TerminalSize.OF_0x0;
             TerminalPosition down = null;
             TerminalPosition drag = null;
 
@@ -85,9 +116,9 @@ public class SplitPanel extends Panel {
 
             private Result handleMouseAction(MouseAction mouseAction) {
                 if (mouseAction.isMouseDown()) {
-                    aSize = compA.getSize();
-                    bSize = compB.getSize();
-                    tSize = thumb.getSize();
+                    aSize = aSize.as(compA.getSize());
+                    bSize = bSize.as(compB.getSize());
+                    tSize = tSize.as(thumb.getSize());
                     down = mouseAction.getPosition();
                 }
                 if (mouseAction.isMouseDrag()) {
@@ -124,23 +155,22 @@ public class SplitPanel extends Panel {
         return imageComponent;
     }
 
-    class ScrollPanelLayoutManager implements LayoutManager {
-
-        boolean hasChanged;
-
-        public ScrollPanelLayoutManager() {
-            hasChanged = true;
+    class SplitPanelLayoutManager implements LayoutManager {
+        TerminalSize aSize = TerminalSize.OF_0x0;
+        TerminalSize bSize = TerminalSize.OF_0x0;
+        TerminalSize tSize = TerminalSize.OF_0x0;
+        @Override
+        public boolean hasChanged() {
+            return hasChanged;
         }
-
-
         @Override
         public TerminalSize getPreferredSize(List<Component> components) {
-            TerminalSize sizeA = compA.getPreferredSize();
-            int aWidth = sizeA.getColumns();
-            int aHeight = sizeA.getRows();
-            TerminalSize sizeB = compB.getPreferredSize();
-            int bWidth = sizeB.getColumns();
-            int bHeight = sizeB.getRows();
+            aSize = compA.getPreferredSize();
+            int aWidth = aSize.getColumns();
+            int aHeight = aSize.getRows();
+            bSize = compB.getPreferredSize();
+            int bWidth = bSize.getColumns();
+            int bHeight = bSize.getRows();
 
             int tWidth = thumb.getPreferredSize().getColumns();
             int tHeight = thumb.getPreferredSize().getRows();
@@ -151,35 +181,19 @@ public class SplitPanel extends Panel {
                 return TerminalSize.of(Math.max(aWidth, Math.max(tWidth, bWidth)), aHeight + tHeight + bHeight);
             }
         }
-
+        TerminalSize thumbSize() {
+            return tSize = isHorizontal ? tSize.as(1, getSize().height()) : tSize.as(getSize().width(), 1);
+        }
         @Override
         public void doLayout(TerminalSize area, List<Component> components) {
-            TerminalSize size = getSize();
+            List<TerminalRectangle> rectangles = components.stream().map(c -> c.getBounds()).collect(Collectors.toList());
 
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            // TODO: themed
-            int length = isHorizontal ? size.getRows() : size.getColumns();
-            TerminalSize tsize = TerminalSize.of(isHorizontal ? 1 : length, !isHorizontal ? 1 : length);
-            TextImage textImage = new BasicTextImage(tsize);
-            Theme theme = getTheme();
-            ThemeDefinition themeDefinition = theme.getDefaultDefinition();
-            ThemeStyle themeStyle = themeDefinition.getNormal();
-
-            TextCharacter thumbRenderer = TextCharacter.fromCharacter(
-                    isHorizontal ? Symbols.SINGLE_LINE_VERTICAL : Symbols.SINGLE_LINE_HORIZONTAL,
-                    themeStyle.getForeground(),
-                    themeStyle.getBackground());
-            if (thumb.isFocused()) {
-                thumbRenderer = thumbRenderer.withModifier(SGR.BOLD);
-            }
-
-            textImage.setAll(thumbRenderer);
-            thumb.setTextImage(textImage);
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            thumb.setTextImage(thumb.getTextImage().resize(thumbSize(), thumbRenderer()));
 
             int tWidth = thumb.getPreferredSize().getColumns();
             int tHeight = thumb.getPreferredSize().getRows();
 
+            TerminalSize size = getSize();
             int w = size.getColumns();
             int h = size.getRows();
 
@@ -188,13 +202,6 @@ public class SplitPanel extends Panel {
             } else {
                 h -= tHeight;
             }
-
-            TerminalSize compAPrevSize = compA.getSize();
-            TerminalSize compBPrevSize = compB.getSize();
-            TerminalSize thumbPrevSize = thumb.getSize();
-            TerminalPosition compAPrevPos = compA.getPosition();
-            TerminalPosition compBPrevPos = compB.getPosition();
-            TerminalPosition thumbPrevPos = thumb.getPosition();
 
             if (isHorizontal) {
                 int leftWidth = Math.max(0, (int) (w * ratio));
@@ -225,33 +232,7 @@ public class SplitPanel extends Panel {
                 thumb.setPosition(TerminalPosition.of(w / 2 - tWidth / 2, leftHeight));
                 compB.setPosition(TerminalPosition.of(0, leftHeight + tHeight));
             }
-
-            hasChanged = !compAPrevPos.equals(compA.getPosition()) ||
-                    !compAPrevSize.equals(compA.getSize()) ||
-                    !compBPrevPos.equals(compB.getPosition()) ||
-                    !compBPrevSize.equals(compB.getSize()) ||
-                    !thumbPrevPos.equals(thumb.getPosition()) ||
-                    !thumbPrevSize.equals(thumb.getSize());
-        }
-
-        @Override
-        public boolean hasChanged() {
-            return hasChanged;
-        }
-    }
-
-    /*
-     * Use whatever sizing.
-     *
-     *
-     */
-    public void setRatio(int left, int right) {
-        if (left == 0 || right == 0) {
-            ratio = 0.5;
-        }
-        else {
-            int total = Math.abs(left) + Math.abs(right);
-            ratio = (double) left / (double) total;
+            hasChanged |= !rectangles.equals(components.stream().map(c -> c.getBounds()).collect(Collectors.toList()));
         }
     }
 
@@ -265,9 +246,5 @@ public class SplitPanel extends Panel {
         }
     }
 
-    @Override
-    public boolean isInvalid() {
-        return super.isInvalid();
-    }
 }
 
