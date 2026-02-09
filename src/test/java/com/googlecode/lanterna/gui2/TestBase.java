@@ -76,19 +76,15 @@ public abstract class TestBase {
         // By default do nothing
     }
     public Window makeThemeChangerWindow() {
-		    final Window window = new BasicWindow("Themes");
+        Collection<String> names = LanternaThemes.getRegisteredThemes();
         ActionListBox themes = new ActionListBox();
-        themes.setPreferredSize(new TerminalSize(30, 16));
-        themes.addItem( "0, theme: default        ", () -> assignTheme("default"));
-        themes.addItem( "1, theme: defrost        ", () -> assignTheme("defrost"));
-        themes.addItem( "2, theme: bigsnake       ", () -> assignTheme("bigsnake"));
-        themes.addItem( "3, theme: conqueror      ", () -> assignTheme("conqueror"));
-        themes.addItem( "4, theme: businessmachine", () -> assignTheme("businessmachine"));
-        themes.addItem( "5, theme: blaster        ", () -> assignTheme("blaster"));
+        for (String name : names) {
+            themes.addItem( "theme: " + name, () -> assignTheme(name));
+        }
         
+        final Window window = new BasicWindow("Themes");
         window.setComponent(themes);
         
-        // 
         // unsure why, there is still some flicker case if ScrollPanel not quite used preferred size 
         //ScrollPanel scrollPanel = new ScrollPanel(themes);
         //scrollPanel.setPreferredSize(new TerminalSize(40, 20));
@@ -111,14 +107,15 @@ public abstract class TestBase {
     }
     
     public void arrangeWindows() {
-        final int PAD = 8;
+        final int PAD = 4;
         int x = 1;
         int y = 1;
         for (Window w : textGUI.getWindows()) {
             TerminalSize size = w.getPreferredSize();
             w.setPosition(new TerminalPosition(x, y));
             w.setHints(Collections.singletonList(Window.Hint.FIXED_POSITION));
-            x += size.getColumns() + PAD;
+            x += (size.getColumns() + PAD) / 2;
+            y += size.getRows() + PAD;
         }
     }
 }
