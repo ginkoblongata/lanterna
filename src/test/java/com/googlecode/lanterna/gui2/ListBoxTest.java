@@ -31,6 +31,23 @@ public class ListBoxTest extends TestBase {
         new ListBoxTest().run(args);
     }
 
+    /*   
+     ┌──ListBox test─────────────────────────────────────┐    
+     │┌─CheckBoxList─┐ ┌─RadioBoxList─┐ ┌─ActionListBox─┐│    
+     ││[ ] Item 1   ▲│ │< > Item 11  ▲│ │Item 20       ▲││    
+     ││[x] Item 2   █│ │< > Item 12  ▒│ │Item 21       ▒││    
+     ││[x] Item 3   █│ │< > Item 13  ▒│ │Item 22       ▒││    
+     ││[ ] Item 4   ▒│ │< > Item 14  ▒│ │Item 23       ▒││    
+     ││[x] Item 5   ▒│ │<o> Item 15  █│ │Item 24       ▒││    
+     ││[x] Item 6   ▒│ │< > Item 16  █│ │Item 25       ▒││    
+     ││[ ] Item 7   ▒│ │< > Item 17  ▒│ │Item 26       █││    
+     ││[ ] Item 8   ▒│ │< > Item 18  ▒│ │Item 27       █││    
+     ││[ ] Item 9   ▒│ │< > Item 19  ▒│ │Item 28       ▒││    
+     ││[ ] Item 10  ▼│ │< > Item 20  ▼│ │Item 29       ▼││    
+     │└──────────────┘ └──────────────┘ └───────────────┘│    
+     │<  OK  >                                           │    
+     └───────────────────────────────────────────────────┘
+    */
     @Override
     public void init(WindowBasedTextGUI textGUI) {
         final BasicWindow window = new BasicWindow("ListBox test");
@@ -46,7 +63,7 @@ public class ListBoxTest extends TestBase {
             final String itemText = "Item " + (i + 1);
             checkBoxList.addItem(itemText);
             radioBoxList.addItem(itemText);
-            actionListBox.addItem(itemText, () -> System.out.println("Selected " + itemText));
+            actionListBox.addItem(itemText, () -> log("Selected " + itemText));
         }
         horizontalPanel.addComponent(checkBoxList.withBorder(Borders.singleLine("CheckBoxList")));
         horizontalPanel.addComponent(radioBoxList.withBorder(Borders.singleLine("RadioBoxList")));
