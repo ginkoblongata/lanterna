@@ -33,20 +33,165 @@ import java.util.*;
 public abstract class TestBase {
 
     MultiWindowTextGUI textGUI;
+    TestHelperUiController testHelperUiController;
+    
+    /*
+        ┌──testing helper─────────────────────────────────────────────────────────────────┐
+        │┌─Themes────────────────┐ ┌─Log Messages────────────────────────────────────────┐│
+        ││theme: default         │ │┌───────────────────────────────────────────────────┐││
+        ││theme: defrost         │ ││...................................................│││
+        ││theme: bigsnake        │ ││...................................................│││
+        ││theme: conqueror       │ ││...................................................│││
+        ││theme: businessmachine │ ││...................................................│││
+        ││theme: blaster         │ ││...................................................│││
+        │└───────────────────────┘ ││...................................................│││
+        │                          ││...................................................│││
+        │                          ││...................................................│││
+        │                          ││...................................................│││
+        │                          ││...................................................│││
+        │                          │└───────────────────────────────────────────────────┘││
+        │                          │                                        <CLEAR LOG>  ││
+        │                          └─────────────────────────────────────────────────────┘│
+        │< Exit >                                                                         │
+        └─────────────────────────────────────────────────────────────────────────────────┘
+    */
+    public static class TestHelperUiController {
+        MultiWindowTextGUI textGui;
+        List<String> themeNames = new ArrayList(LanternaThemes.getRegisteredThemes());
+        ActionListBox themesListBox = new ActionListBox();
+        TextBox logTextBox;
+        public TestHelperUiController(MultiWindowTextGUI textGui) {
+            this.textGui = textGui;
+        }
+        /*
+            ┌─Themes────────────────┐
+            │theme: default         │
+            │theme: defrost         │
+            │theme: bigsnake        │
+            │theme: conqueror       │
+            │theme: businessmachine │
+            │theme: blaster         │
+            └───────────────────────┘
+            
+        */
+        private Component makeThemeChangerComponent() {
+            for (String name : themeNames) {
+                themesListBox.addItem( "theme: " + name, () -> assignTheme(name));
+            }
+            return themesListBox.withBorder(Borders.singleLine("Themes"));
+        }
+        private void assignTheme(String themeName) {
+            if (themeName == null) {
+                themeName = "businessmachine";
+            }
+            
+            Theme theme = LanternaThemes.getRegisteredTheme(themeName);
+            Collection<Window> windows = textGui.getWindows();
+            if (theme != null && windows != null) {
+                for (Window w : windows) {
+                    w.setTheme(theme);
+                }
+                textGui.setTheme(theme);
+            }
+            Integer index = themeNames.indexOf(themeName);
+            if (index != null && themesListBox.getSelectedIndex() != index) {
+                themesListBox.setSelectedIndex(index);
+            }
+        }
+        /*
+            ┌─Log Messages────────────────────────────────────────┐
+            │┌───────────────────────────────────────────────────┐│
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            ││...................................................││
+            │└───────────────────────────────────────────────────┘│
+            │                                        <CLEAR LOG>  │
+            └─────────────────────────────────────────────────────┘  
+        */
+        private Component makeLogMessagesComponent() {
+            logTextBox = new TextBox(new TerminalSize(80, 10));
+            logTextBox.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL));
+            Button clearLogButton = new Button("CLEAR LOG", () -> logTextBox.setText(""));
+            
+            Panel ui = new Panel(new LinearLayout(Direction.VERTICAL));
+            //ui.setPreferredSize(new TerminalSize(160, 40));
+            ui.addComponent(logTextBox.withBorder(Borders.singleLine("")));
+            
+            Panel buttonPanel = new Panel();
+            buttonPanel.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            Panel spacer = new Panel();
+            spacer.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL, LinearLayout.GrowPolicy.CAN_GROW));
+            Panel spacer2 = new Panel();
+            spacer2.setPreferredSize(TerminalSize.of(1, 1));
+            buttonPanel.addComponent(spacer);
+            clearLogButton.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.END));
+            buttonPanel.addComponent(clearLogButton);
+            buttonPanel.addComponent(spacer2);
+            buttonPanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL, LinearLayout.GrowPolicy.CAN_GROW));
+            ui.addComponent(buttonPanel);
+            
+            return ui.withBorder(Borders.singleLine("Log Messages"));
+        }
+        public Window makeWindow(Screen screen) {
+            final Window window = new BasicWindow("testing helper");
+            Panel ui = Panels.horizontal(
+                makeThemeChangerComponent(),
+                makeLogMessagesComponent()
+            );
+            ui = Panels.vertical(
+                ui,
+                new Button("Exit", () -> exit(screen))
+            );
+            window.setComponent(ui);
+            return window;
+        }
+        public void log(String message) {
+            logAppendMax(10, message);
+        }
+        public void logAppendMax(int lineCount, String message) {
+            TextBox log = logTextBox;
+            try {
+                while (log.getLineCount() >= lineCount) {
+                    log.removeLine(0);
+                }
+            } finally {
+                log.addLine(message);
+                // unfortunately some methods expect (row, column), some (column, row)
+                log.setCaretPosition(new TerminalPosition(Integer.MAX_VALUE, log.getLineCount()));
+            }
+        }
+        public void exit(Screen screen) {
+            try {
+                screen.stopScreen();
+                System.exit(0);
+            } catch (IOException ex) {
+                System.out.println("exception occurred when trying to stop screen: " + ex);
+                System.exit(1);
+            }
+        }
+    }
 
     void run(String[] args) throws IOException, InterruptedException {
         Screen screen = new TestTerminalFactory(args).createScreen();
         screen.startScreen();
         textGUI = createTextGUI(screen);
-        assignTheme(extractTheme(args));
         textGUI.setBlockingIO(false);
         textGUI.setEOFWhenNoWindows(true);
         //noinspection ResultOfMethodCallIgnored
         textGUI.isEOFWhenNoWindows();   //No meaning, just to silence IntelliJ:s "is never used" alert
 
         try {
-            textGUI.addWindow(makeThemeChangerWindow());
+            testHelperUiController = new TestHelperUiController(textGUI);
+            textGUI.addWindow(testHelperUiController.makeWindow(screen));
             init(textGUI);
+            testHelperUiController.assignTheme(extractTheme(args));
             arrangeWindows();
             AsynchronousTextGUIThread guiThread = (AsynchronousTextGUIThread)textGUI.getGUIThread();
             guiThread.start();
@@ -75,36 +220,7 @@ public abstract class TestBase {
     public void afterGUIThreadStarted(WindowBasedTextGUI textGUI) {
         // By default do nothing
     }
-    public Window makeThemeChangerWindow() {
-        Collection<String> names = LanternaThemes.getRegisteredThemes();
-        ActionListBox themes = new ActionListBox();
-        for (String name : names) {
-            themes.addItem( "theme: " + name, () -> assignTheme(name));
-        }
-        
-        final Window window = new BasicWindow("Themes");
-        window.setComponent(themes);
-        
-        // unsure why, there is still some flicker case if ScrollPanel not quite used preferred size 
-        //ScrollPanel scrollPanel = new ScrollPanel(themes);
-        //scrollPanel.setPreferredSize(new TerminalSize(40, 20));
-        //window.setComponent(scrollPanel);
-        return window;
-    }
     
-    public void assignTheme(String themeName) {
-        if (themeName == null) {
-            return;
-        }
-        Theme theme = LanternaThemes.getRegisteredTheme(themeName);
-        Collection<Window> windows = textGUI.getWindows();
-        if (theme != null && windows != null) {
-            for (Window w : windows) {
-                w.setTheme(theme);
-            }
-            textGUI.setTheme(theme);
-        }
-    }
     
     public void arrangeWindows() {
         final int PAD = 4;
@@ -114,8 +230,11 @@ public abstract class TestBase {
             TerminalSize size = w.getPreferredSize();
             w.setPosition(new TerminalPosition(x, y));
             w.setHints(Collections.singletonList(Window.Hint.FIXED_POSITION));
-            x += (size.getColumns() + PAD) / 2;
+            x += PAD;
             y += size.getRows() + PAD;
         }
+    }
+    void log(String message) {
+        testHelperUiController.log(message);
     }
 }

@@ -29,79 +29,60 @@ import java.util.*;
 
 /**
  * <p>
- * Serves to manually test ScrollPanel during development of mouse support.
- * Uses Telnet port 23000 as you need something different than swing terminal
- * provided by IDE. After launching main method you can connect to it via terminal "telnet localhost 23000" (or something of that nature)
- * 
- * Or, this can be simply launched at the command line in a suitable terminal.
+ * Serves to manually test ScrollPanel during development of mouse support. 
+ *
+ * This can be simply launched at the command line in a suitable terminal.
  * 
  * <p>
  */
-public class ScrollPanelTest {
+public class ScrollPanelTest extends TestBase {
 
     public static void main(String[] args) throws Exception {
-        new ScrollPanelTest().go();
+        new ScrollPanelTest().run(args);
     }
     
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    
-    Window window;
-    
-    void assignTheme(String themeName) {
-        window.setTheme(LanternaThemes.getRegisteredTheme(themeName));
-    }
-    
-    private void logAppendMax(int lineCount, String message) {
-        TextBox log = logTextBox;
-        try {
-            while (log.getLineCount() >= lineCount) {
-                log.removeLine(0);
+    @Override
+    public void init(WindowBasedTextGUI textGUI) {
+        Window window = new BasicWindow("ScrollPanelTest");
+        window.addWindowListener(new WindowListenerAdapter() {
+            @Override
+            public void onInput(Window basePane, com.googlecode.lanterna.input.KeyStroke keyStroke, java.util.concurrent.atomic.AtomicBoolean deliverEvent) {
+                log("input: " + keyStroke);
             }
-        } finally {
-            log.addLine(message);
-            // unfortunately some methods expect (row, column), some (column, row)
-            log.setCaretPosition(new TerminalPosition(Integer.MAX_VALUE, log.getLineCount()));
-        }
+        });
+        window.setComponent(makeUi());
+        textGUI.addWindow(window);
     }
-
-    private TextBox logTextBox;
-    
-    void go() throws Exception {
-        try (Screen screen = new DefaultTerminalFactory()
-                .setTelnetPort(23000)
-                .setMouseCaptureMode(MouseCaptureMode.CLICK_RELEASE_DRAG_MOVE)
-                .setInitialTerminalSize(new TerminalSize(100, 140))
-                .createScreen()) {
-            screen.startScreen();
-            WindowBasedTextGUI gui = new MultiWindowTextGUI(screen);
-            window = new BasicWindow("ScrollPanelTest");
-            window.addWindowListener(new WindowListenerAdapter() {
-                @Override
-                public void onInput(Window basePane, com.googlecode.lanterna.input.KeyStroke keyStroke, java.util.concurrent.atomic.AtomicBoolean deliverEvent) {
-                    log("input: " + keyStroke);
-                }
-            });
-            window.setTheme(LanternaThemes.getRegisteredTheme("businessmachine"));
-            window.setComponent(makeUi());
-            gui.addWindowAndWait(window);
-        }
-    }
-
+    /*
+      ┌──ScrollPanelTest─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+      │ ┌─choose number──────────────┐ ┌─scrollPanel actionListBox────┐ ┌─scrollPanel radioListBox──┐ ┌─scrollPanel checkListBox──┐      │
+      │ │assign: 0 items            ▲│ │actionListBox item: 15       ▲│ │< > radioListBox item: 30 ▲│ │[ ] checkListBox item: 12 ▲│      │
+      │ │assign: 5 items            █│ │actionListBox item: 16       ▒│ │< > radioListBox item: 31 ▒│ │[ ] checkListBox item: 13 ▒│      │
+      │ │assign: 10 items           █│ │actionListBox item: 17       ▒│ │< > radioListBox item: 32 ▒│ │[ ] checkListBox item: 14 ▒│      │
+      │ │assign: 15 items           █│ │actionListBox item: 18       ▒│ │< > radioListBox item: 33 ▒│ │[x] checkListBox item: 15 ▒│      │
+      │ │assign: 20 items           █│ │actionListBox item: 19       ▒│ │< > radioListBox item: 34 ▒│ │[x] checkListBox item: 16 █│      │
+      │ │assign: 25 items           █│ │actionListBox item: 20       █│ │< > radioListBox item: 35 ▒│ │[ ] checkListBox item: 17 █│      │
+      │ │assign: 30 items           █│ │actionListBox item: 21       █│ │< > radioListBox item: 36 ▒│ │[x] checkListBox item: 18 █│      │
+      │ │assign: 35 items           █│ │actionListBox item: 22       █│ │< > radioListBox item: 37 ▒│ │[ ] checkListBox item: 19 █│      │
+      │ │assign: 40 items           █│ │actionListBox item: 23       █│ │<o> radioListBox item: 38 ▒│ │[x] checkListBox item: 20 █│      │
+      │ │assign: 45 items           █│ │actionListBox item: 24       █│ │< > radioListBox item: 39 ▒│ │[ ] checkListBox item: 21 █│      │
+      │ │assign: 50 items           █│ │actionListBox item: 25       █│ │< > radioListBox item: 40 █│ │[ ] checkListBox item: 22 ▒│      │
+      │ │assign: 55 items           █│ │actionListBox item: 26       ▒│ │< > radioListBox item: 41 █│ │[x] checkListBox item: 23 ▒│      │
+      │ │assign: 60 items           █│ │actionListBox item: 27       ▒│ │< > radioListBox item: 42 █│ │[ ] checkListBox item: 24 ▒│      │
+      │ │assign: 65 items           █│ │actionListBox item: 28       ▒│ │< > radioListBox item: 43 █│ │[ ] checkListBox item: 25 ▒│      │
+      │ │assign: 70 items           █│ │actionListBox item: 29       ▒│ │< > radioListBox item: 44 █│ │[x] checkListBox item: 26 ▒│      │
+      │ │assign: 75 items           ▒│ │actionListBox item: 30       ▒│ │< > radioListBox item: 45 █│ │[x] checkListBox item: 27 ▒│      │
+      │ │assign: 80 items           ▒│ │actionListBox item: 31       ▒│ │< > radioListBox item: 46 ▒│ │[x] checkListBox item: 28 ▒│      │
+      │ │assign: 85 items           ▼│ │actionListBox item: 32       ▒│ │< > radioListBox item: 47 ▒│ │[ ] checkListBox item: 29 ▒│      │
+      │ └────────────────────────────┘ │actionListBox item: 33       ▒│ │< > radioListBox item: 48 ▒│ │[ ] checkListBox item: 30 ▒│      │
+      │                                │actionListBox item: 34       ▼│ │< > radioListBox item: 49 ▼│ │[ ] checkListBox item: 31 ▼│      │
+      │                                └──────────────────────────────┘ └───────────────────────────┘ └───────────────────────────┘      │
+      └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    */
     Component makeUi() {
         
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         // instantiate ui components (no layout activities)
-        logTextBox = new TextBox(new TerminalSize(80, 12));
-        logTextBox.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL));
-        Button clearLogButton = new Button("CLEAR LOG", () -> logTextBox.setText(""));
-        
-        ActionListBox themes = new ActionListBox(new TerminalSize(40, 62));
-        themes.addItem("theme: default        ", () -> assignTheme("default"));
-        themes.addItem("theme: defrost        ", () -> assignTheme("defrost"));
-        themes.addItem("theme: bigsnake       ", () -> assignTheme("bigsnake"));
-        themes.addItem("theme: conqueror      ", () -> assignTheme("conqueror"));
-        themes.addItem("theme: businessmachine", () -> assignTheme("businessmachine"));
-        themes.addItem("theme: blaster        ", () -> assignTheme("blaster"));
 		
         ActionListBox actionListBox = new ActionListBox();
         RadioBoxList<String> radioListBox = new RadioBoxList<>();
@@ -128,17 +109,13 @@ public class ScrollPanelTest {
         eachOf(245, i -> checkboxList2.addItem("heckboxList2: " + i));
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
-        
-        
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         // arrange components
         Panel ui = new Panel(new LinearLayout(Direction.VERTICAL));
-        ui.setPreferredSize(new TerminalSize(160, 40));
-        ui.addComponent(logTextBox.withBorder(Borders.singleLine("log")));
+        ui.setPreferredSize(new TerminalSize(130, 22));
         
         Panel hpanel = new Panel(new GridLayout(100));
         hpanel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.FILL));
-        hpanel.addComponent(themes.withBorder(Borders.singleLine("themes")));
         
         Component numberChooserBordered = numberChooser.withBorder(Borders.singleLine("choose number"));
         numberChooserBordered.setPreferredSize(TerminalSize.of(30, 20));
@@ -198,7 +175,7 @@ public class ScrollPanelTest {
         
         //ui.addComponent(Panels.vertical(hpanel, hpanel2));
         ui.addComponent(hpanel);
-        ui.addComponent(clearLogButton);
+        //ui.addComponent(clearLogButton);
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
         return ui;
@@ -215,9 +192,7 @@ public class ScrollPanelTest {
         eachOf(count, i -> listbox.addItem(label + " item: " + i));
     }
 
-    void log(String message) {
-        logAppendMax(10, message);
-    }
+    
     
     void eachOf(int count, Consumer<Integer> op) {
         for (int i = 0; i < count; i++) op.accept(i);
